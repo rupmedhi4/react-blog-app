@@ -1,15 +1,47 @@
 import React from 'react';
-import logo from './logo.svg';
 import './App.css';
+import { useState } from 'react';
+import { useDispatch } from 'react-redux';
+import authService from './appWrite/auth'  
+import { useEffect } from 'react';
+import { login, logout } from './Store/authSlices'
+import Header from './Components/Header/Header'
+import Footer from './Components/Footer/Footer'
 
 function App() {
-  console.log(process.env.REACT_APP_APPWRITE_URL); // Access the environment variable
+  const [loading, setLoading] = useState(true);
+  const dispatch = useDispatch()
 
-  return (
-    <div className="App">
-      <p>URL: {process.env.REACT_APP_APPWRITE_URL}</p> {/* Display the URL */}
+ useEffect(()=>{
+  authService.getCurrentUser()
+    .then((userData)=>{
+      if(userData){
+        dispatch(login(userData))
+      }else{
+        dispatch(logout())
+      }
+    })
+    .catch((error) => {
+      console.error( error);
+     })
+    .finally(()=>setLoading(false))
+   
+ },[])
+ 
+
+ return !loading ? (
+  <div className='min-h-screen flex flex-wrap content-between bg-gray-400'>
+    <div className='w-full block'>
+      <Header/>
+      <main>
+      todo  {/* <Outlet/> */}
+      </main>
+      <Footer/>
     </div>
-  );
+  </div>
+ ) :null
+
+
 }
 
 export default App;
